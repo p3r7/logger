@@ -28,6 +28,12 @@ const (
 	cyan   = "\033[0;36m"
 	blue   = "\033[0;34;1m"
 	end    = "\033[0m"
+
+	prefixTrace = "[trace]\t"
+	prefixDebug = "[debug]\t"
+	prefixInfo  = "[info]\t"
+	prefixWarn  = "[warn]\t"
+	prefixError = "[error]\t"
 )
 
 func init() {
@@ -41,11 +47,11 @@ type Logger struct {
 
 func New() (l *Logger) {
 	l = &Logger{
-		T: log.New(os.Stdout, "[trace]\t", log.Ltime|log.Lmicroseconds|log.Lshortfile),
-		D: log.New(os.Stdout, "[debug]\t", log.Ltime|log.Lshortfile),
-		I: log.New(os.Stdout, "[info]\t", log.Ldate|log.Ltime),
-		W: log.New(os.Stdout, "[warn]\t", log.Ldate|log.Ltime),
-		E: log.New(os.Stdout, "[error]\t", log.Ldate|log.Ltime|log.Lshortfile),
+		T: log.New(os.Stdout, prefixTrace, log.Ltime|log.Lmicroseconds|log.Lshortfile),
+		D: log.New(os.Stdout, prefixDebug, log.Ltime|log.Lshortfile),
+		I: log.New(os.Stdout, prefixInfo, log.Ldate|log.Ltime),
+		W: log.New(os.Stdout, prefixWarn, log.Ldate|log.Ltime),
+		E: log.New(os.Stdout, prefixError, log.Ldate|log.Ltime|log.Lshortfile),
 		t: true,
 		d: true,
 		i: true,
@@ -75,6 +81,16 @@ func SetLevel(s string) {
 		return
 	}
 	l.SetLevel(s)
+}
+
+func DisableColors() {
+	if runtime.GOOS == "linux" {
+		l.T.SetPrefix(prefixTrace)
+		l.D.SetPrefix(prefixDebug)
+		l.I.SetPrefix(prefixInfo)
+		l.W.SetPrefix(prefixWarn)
+		l.E.SetPrefix(prefixError)
+	}
 }
 
 func (l *Logger) SetOutput(w io.Writer) {
